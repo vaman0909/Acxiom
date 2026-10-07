@@ -72,7 +72,7 @@ A full-stack, role-based CRM application built with Node.js, Express, SQLite, Ch
 ## Project Structure
 
 ```
-AcxiomCRM/
+AcxiomCR/
 ├── db/
 │   ├── index.js          # SQLite connection, pragmas, table schemas & indexes
 │   ├── seed.js           # Seeds roles and initial admin/manager/sales accounts
