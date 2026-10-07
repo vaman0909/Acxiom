@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcxiomCRM - User & Role Administration</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- App Sidebar -->
+  <aside class="app-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">A</div>
+      <div class="brand-text">
+        <h5>AcxiomCRM</h5>
+        <span>Sales Enterprise</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-title">Core CRM</div>
+      <a href="/dashboard" class="nav-link-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+      <a href="/customers" class="nav-link-item"><i class="bi bi-buildings-fill"></i><span>Customers</span></a>
+      <a href="/leads" class="nav-link-item"><i class="bi bi-funnel-fill"></i><span>Leads</span></a>
+      <a href="/opportunities" class="nav-link-item"><i class="bi bi-cash-stack"></i><span>Opportunities</span></a>
+      <a href="/followups" class="nav-link-item"><i class="bi bi-calendar-check-fill"></i><span>Follow-Ups</span></a>
+      <a href="/activities" class="nav-link-item"><i class="bi bi-activity"></i><span>Activities</span></a>
+
+      <div class="nav-section-title">Analytics & Intelligence</div>
+      <a href="/reports" class="nav-link-item"><i class="bi bi-bar-chart-line-fill"></i><span>Reports</span></a>
+      <a href="/api-docs" class="nav-link-item"><i class="bi bi-code-slash"></i><span>REST API Explorer</span></a>
+
+      <div class="nav-section-title admin-only-nav">Administration</div>
+      <a href="/users" class="nav-link-item active admin-only-nav"><i class="bi bi-people-fill"></i><span>User Management</span></a>
+      <a href="/audit" class="nav-link-item manager-admin-nav"><i class="bi bi-shield-shaded"></i><span>Audit Logs</span></a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-badge mb-2">
+        <div class="user-avatar">US</div>
+        <div class="user-info text-truncate">
+          <div class="fw-bold text-white small current-user-name text-truncate">Loading...</div>
+          <div class="text-muted small current-user-email text-truncate" style="font-size: 0.72rem;">user@acxiom.com</div>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 mt-2" onclick="handleLogout()">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+    <header class="app-topbar">
+      <div class="d-flex align-items-center gap-3">
+        <h5 class="fw-bold mb-0">User & Access Administration (Admin Only)</h5>
+        <span class="badge current-user-role badge-role-admin">Role</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="demo-role-switcher">
+          <span class="small text-muted me-1 fw-bold" style="font-size: 0.7rem;">ROLE SCOPE:</span>
+          <button class="demo-role-btn" data-role="Admin" onclick="switchDemoRole('Admin')">Admin</button>
+          <button class="demo-role-btn" data-role="Manager" onclick="switchDemoRole('Manager')">Manager</button>
+          <button class="demo-role-btn" data-role="SalesExecutive" onclick="switchDemoRole('SalesExecutive')">Sales Rep</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h4 class="fw-bold text-dark mb-1">System Users & RBAC Permissions</h4>
+          <p class="text-muted small mb-0">Manage credentials, password resets, account lockouts, and role scopes.</p>
+        </div>
+        <button class="btn btn-crm-primary" onclick="openCreateUserModal()">
+          <i class="bi bi-person-plus-fill me-1"></i> Create Application User
+        </button>
+      </div>
+
+      <!-- Users Table -->
+      <div class="crm-card">
+        <div class="crm-card-header">
+          <h5 class="mb-0">Active Accounts & Identity State</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-crm mb-0">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Contact</th>
+                <th>Account Status</th>
+                <th>Security & Lockout</th>
+                <th>Created</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="7" class="text-center p-4"><span class="spinner-border spinner-border-sm text-primary"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create User Modal -->
+  <div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Create Application User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div id="createAlert" class="alert alert-danger d-none py-2 px-3 small"></div>
+          <form id="createUserForm" novalidate>
+            <div class="mb-3">
+              <label class="form-label">Full Name *</label>
+              <input type="text" id="uName" name="Name" class="form-control" required data-label="Full Name">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email Address *</label>
+              <input type="email" id="uEmail" name="Email" class="form-control" required data-label="Email">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" id="uPhone" name="Phone" class="form-control" placeholder="+91 9876543210">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Role *</label>
+              <select id="uRole" name="Role" class="form-select">
+                <option value="SalesExecutive">Sales Executive</option>
+                <option value="Manager">Manager</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Initial Password *</label>
+              <input type="password" id="uPassword" name="Password" class="form-control" placeholder="Min 8 chars, Upper, Lower, Num, Special" required data-label="Password">
+            </div>
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-crm-primary py-2 fw-bold">Provision Account</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Password Modal -->
+  <div class="modal fade" id="resetPwdModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Reset User Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div id="resetAlert" class="alert alert-danger d-none py-2 px-3 small"></div>
+          <form id="resetPwdForm">
+            <input type="hidden" id="resetUserId">
+            <div class="mb-3">
+              <label class="form-label">User Email</label>
+              <input type="text" id="resetUserEmail" class="form-control bg-light" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">New Password *</label>
+              <input type="password" id="newPasswordInput" class="form-control" placeholder="Must satisfy password policy" required>
+              <small class="text-muted">Requires 8+ chars, uppercase, lowercase, digit, and special char.</small>
+            </div>
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-warning py-2 fw-bold">Apply Secure Reset</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let usersList = [];
+    let createModalInstance = null;
+    let resetModalInstance = null;
+
+    async function loadUsers() {
+      try {
+        const res = await apiFetch('/users-data');
+        usersList = res.users;
+        renderUsersTable();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = usersList.map(u => `
+        <tr>
+          <td>
+            <div class="fw-bold text-dark">${u.Name}</div>
+            <div class="small text-muted">${u.Email}</div>
+          </td>
+          <td>
+            <span class="badge badge-role-${u.Role === 'Admin' ? 'admin' : (u.Role === 'Manager' ? 'manager' : 'sales')}">
+              ${u.Role}
+            </span>
+          </td>
+          <td><span class="small text-muted">${u.Phone || 'N/A'}</span></td>
+          <td>
+            <span class="badge-status badge-${u.IsActive ? 'active' : 'inactive'}">
+              <i class="bi bi-circle-fill" style="font-size: 0.45rem;"></i> ${u.IsActive ? 'Active' : 'Deactivated'}
+            </span>
+          </td>
+          <td>
+            ${u.isLocked ? `
+              <span class="badge bg-danger-subtle text-danger mb-1"><i class="bi bi-lock-fill me-1"></i>Locked</span>
+              <button class="btn btn-sm btn-outline-danger d-block mt-1 py-0" onclick="unlockUser(${u.UserId}, '${u.Name}')">Unlock</button>
+            ` : `
+              <span class="badge bg-light text-secondary border">Normal</span>
+              <div class="small text-muted" style="font-size: 0.72rem;">Failed attempts: ${u.FailedLoginCount || 0}</div>
+            `}
+          </td>
+          <td><span class="small text-muted font-monospace">${u.CreatedDate ? u.CreatedDate.split('T')[0] : 'N/A'}</span></td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-warning me-1" onclick="openResetModal(${u.UserId}, '${u.Email}')" title="Reset Password">
+              <i class="bi bi-key"></i> Reset PW
+            </button>
+            <button class="btn btn-sm btn-outline-${u.IsActive ? 'secondary' : 'success'}" onclick="toggleActive(${u.UserId}, ${u.IsActive})" title="Toggle Active">
+              <i class="bi bi-power"></i> ${u.IsActive ? 'Disable' : 'Enable'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openCreateUserModal() {
+      document.getElementById('createAlert').classList.add('d-none');
+      document.getElementById('createUserForm').reset();
+      if (!createModalInstance) createModalInstance = new bootstrap.Modal(document.getElementById('createUserModal'));
+      createModalInstance.show();
+    }
+
+    function openResetModal(id, email) {
+      document.getElementById('resetAlert').classList.add('d-none');
+      document.getElementById('resetUserId').value = id;
+      document.getElementById('resetUserEmail').value = email;
+      document.getElementById('newPasswordInput').value = '';
+      if (!resetModalInstance) resetModalInstance = new bootstrap.Modal(document.getElementById('resetPwdModal'));
+      resetModalInstance.show();
+    }
+
+    async function unlockUser(id, name) {
+      try {
+        await apiFetch(`/users-data/${id}/unlock`, { method: 'POST' });
+        showToast(`Account for ${name} has been unlocked!`, 'success');
+        loadUsers();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function toggleActive(id, currentStatus) {
+      try {
+        await apiFetch(`/users-data/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ IsActive: currentStatus ? 0 : 1 })
+        });
+        showToast(`User status updated.`, 'success');
+        loadUsers();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateForm(e.target)) return;
+
+      const payload = {
+        Name: document.getElementById('uName').value.trim(),
+        Email: document.getElementById('uEmail').value.trim(),
+        Phone: document.getElementById('uPhone').value.trim(),
+        Role: document.getElementById('uRole').value,
+        Password: document.getElementById('uPassword').value
+      };
+
+      try {
+        const res = await apiFetch('/users-data', { method: 'POST', body: JSON.stringify(payload) });
+        showToast(res.message, 'success');
+        createModalInstance.hide();
+        loadUsers();
+      } catch (err) {
+        document.getElementById('createAlert').textContent = err.message;
+        document.getElementById('createAlert').classList.remove('d-none');
+      }
+    });
+
+    document.getElementById('resetPwdForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('resetUserId').value;
+      const newPassword = document.getElementById('newPasswordInput').value;
+
+      try {
+        const res = await apiFetch(`/users-data/${id}/reset-password`, {
+          method: 'POST',
+          body: JSON.stringify({ newPassword })
+        });
+        showToast(res.message, 'success');
+        resetModalInstance.hide();
+      } catch (err) {
+        document.getElementById('resetAlert').textContent = err.message;
+        document.getElementById('resetAlert').classList.remove('d-none');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadUsers);
+  </script>
+</body>
+</html>

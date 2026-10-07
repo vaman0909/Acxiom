@@ -1,0 +1,515 @@
+/* ========================================================
+   AcxiomCRM Enterprise Design System
+   Modern, Sleek, Professional CRM UI
+   ======================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --font-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Color Palette */
+  --crm-bg: #f8fafc;
+  --crm-surface: #ffffff;
+  --crm-sidebar-bg: #0f172a;
+  --crm-sidebar-hover: #1e293b;
+  --crm-sidebar-active: #3b82f6;
+
+  --crm-primary: #2563eb;
+  --crm-primary-light: #dbeafe;
+  --crm-primary-dark: #1d4ed8;
+
+  --crm-success: #10b981;
+  --crm-success-light: #d1fae5;
+  --crm-warning: #f59e0b;
+  --crm-warning-light: #fef3c7;
+  --crm-danger: #ef4444;
+  --crm-danger-light: #fee2e2;
+  --crm-info: #06b6d4;
+  --crm-info-light: #cffafe;
+  --crm-purple: #8b5cf6;
+  --crm-purple-light: #ede9fe;
+
+  --crm-border: #e2e8f0;
+  --crm-border-light: #f1f5f9;
+  --crm-text-primary: #0f172a;
+  --crm-text-secondary: #475569;
+  --crm-text-muted: #94a3b8;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.15);
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--crm-bg);
+  color: var(--crm-text-primary);
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sidebar Styling */
+.app-sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background-color: var(--crm-sidebar-bg);
+  color: #e2e8f0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+}
+
+.sidebar-brand {
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.brand-text h5 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.brand-text span {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sidebar-nav {
+  padding: 1.25rem 0.75rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-section-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 0.75rem 0.25rem 0.75rem;
+}
+
+.nav-link-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-bottom: 3px;
+}
+
+.nav-link-item:hover {
+  background-color: var(--crm-sidebar-hover);
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+.nav-link-item.active {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.2) 0%, rgba(37, 99, 235, 0.05) 100%);
+  color: #60a5fa;
+  border-left: 3px solid #3b82f6;
+  font-weight: 600;
+}
+
+.nav-link-item i {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 0.85rem;
+}
+
+/* App Main Layout */
+.app-main {
+  margin-left: 260px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top Navbar */
+.app-topbar {
+  background-color: var(--crm-surface);
+  border-bottom: 1px solid var(--crm-border);
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.demo-role-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f1f5f9;
+  padding: 4px 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+}
+
+.demo-role-btn {
+  border: none;
+  background: transparent;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--crm-text-secondary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.demo-role-btn:hover {
+  background-color: #e2e8f0;
+  color: var(--crm-text-primary);
+}
+
+.demo-role-btn.active {
+  background-color: var(--crm-primary);
+  color: white;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+.page-content {
+  padding: 2rem;
+  flex: 1;
+}
+
+/* Card Styling */
+.crm-card {
+  background: var(--crm-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--crm-border);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.crm-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.crm-card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--crm-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+}
+
+.crm-card-header h5 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--crm-text-primary);
+}
+
+.crm-card-body {
+  padding: 1.5rem;
+}
+
+/* KPI Stat Cards */
+.kpi-card {
+  background: white;
+  border: 1px solid var(--crm-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.kpi-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  margin-bottom: 1rem;
+}
+
+.kpi-val {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--crm-text-primary);
+  line-height: 1.2;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--crm-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+}
+
+/* Badges */
+.badge-status {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-active, .badge-won, .badge-qualified, .badge-converted, .badge-completed {
+  background-color: var(--crm-success-light);
+  color: #065f46;
+}
+
+.badge-inactive, .badge-lost, .badge-missed, .badge-cancelled {
+  background-color: var(--crm-danger-light);
+  color: #991b1b;
+}
+
+.badge-new, .badge-contacted, .badge-planned {
+  background-color: var(--crm-primary-light);
+  color: #1e40af;
+}
+
+.badge-negotiation, .badge-proposal {
+  background-color: var(--crm-warning-light);
+  color: #92400e;
+}
+
+.badge-role-admin {
+  background-color: var(--crm-purple-light);
+  color: #5b21b6;
+  font-weight: 700;
+}
+
+.badge-role-manager {
+  background-color: var(--crm-info-light);
+  color: #0e7490;
+  font-weight: 700;
+}
+
+.badge-role-sales {
+  background-color: var(--crm-primary-light);
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+/* Custom Table Styling */
+.table-crm {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-crm th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--crm-border);
+  border-bottom: 1px solid var(--crm-border);
+}
+
+.table-crm td {
+  padding: 0.95rem 1rem;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--crm-border-light);
+  vertical-align: middle;
+}
+
+.table-crm tbody tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* Buttons */
+.btn-crm-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-crm-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Forms & Validation styling */
+.form-control:focus, .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--crm-text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.validation-error-feedback {
+  color: var(--crm-danger);
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+.is-invalid + .validation-error-feedback {
+  display: block;
+}
+
+/* Code block / JSON preview */
+pre.json-viewer {
+  background-color: #0f172a;
+  color: #38bdf8;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+/* Login Page specific styling */
+.login-split-container {
+  min-height: 100vh;
+  display: flex;
+}
+
+.login-brand-panel {
+  flex: 1;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  color: white;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-brand-panel::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  border-radius: 50%;
+}
+
+.login-form-panel {
+  width: 480px;
+  background: white;
+  padding: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 992px) {
+  .app-sidebar {
+    width: 70px;
+  }
+  .app-sidebar .brand-text, .app-sidebar .nav-link-item span, .app-sidebar .nav-section-title, .app-sidebar .user-info {
+    display: none;
+  }
+  .app-main {
+    margin-left: 70px;
+  }
+  .login-brand-panel {
+    display: none;
+  }
+  .login-form-panel {
+    width: 100%;
+    padding: 2rem;
+  }
+}

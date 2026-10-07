@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcxiomCRM - Sales Opportunity Pipeline</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- App Sidebar -->
+  <aside class="app-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">A</div>
+      <div class="brand-text">
+        <h5>AcxiomCRM</h5>
+        <span>Sales Enterprise</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-title">Core CRM</div>
+      <a href="/dashboard" class="nav-link-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+      <a href="/customers" class="nav-link-item"><i class="bi bi-buildings-fill"></i><span>Customers</span></a>
+      <a href="/leads" class="nav-link-item"><i class="bi bi-funnel-fill"></i><span>Leads</span></a>
+      <a href="/opportunities" class="nav-link-item active"><i class="bi bi-cash-stack"></i><span>Opportunities</span></a>
+      <a href="/followups" class="nav-link-item"><i class="bi bi-calendar-check-fill"></i><span>Follow-Ups</span></a>
+      <a href="/activities" class="nav-link-item"><i class="bi bi-activity"></i><span>Activities</span></a>
+
+      <div class="nav-section-title">Analytics & Intelligence</div>
+      <a href="/reports" class="nav-link-item"><i class="bi bi-bar-chart-line-fill"></i><span>Reports</span></a>
+      <a href="/api-docs" class="nav-link-item"><i class="bi bi-code-slash"></i><span>REST API Explorer</span></a>
+
+      <div class="nav-section-title admin-only-nav">Administration</div>
+      <a href="/users" class="nav-link-item admin-only-nav"><i class="bi bi-people-fill"></i><span>User Management</span></a>
+      <a href="/audit" class="nav-link-item manager-admin-nav"><i class="bi bi-shield-shaded"></i><span>Audit Logs</span></a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-badge mb-2">
+        <div class="user-avatar">US</div>
+        <div class="user-info text-truncate">
+          <div class="fw-bold text-white small current-user-name text-truncate">Loading...</div>
+          <div class="text-muted small current-user-email text-truncate" style="font-size: 0.72rem;">user@acxiom.com</div>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 mt-2" onclick="handleLogout()">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+    <header class="app-topbar">
+      <div class="d-flex align-items-center gap-3">
+        <h5 class="fw-bold mb-0">Opportunity Pipeline Management</h5>
+        <span class="badge current-user-role badge-role-admin">Role</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="demo-role-switcher">
+          <span class="small text-muted me-1 fw-bold" style="font-size: 0.7rem;">ROLE SCOPE:</span>
+          <button class="demo-role-btn" data-role="Admin" onclick="switchDemoRole('Admin')">Admin</button>
+          <button class="demo-role-btn" data-role="Manager" onclick="switchDemoRole('Manager')">Manager</button>
+          <button class="demo-role-btn" data-role="SalesExecutive" onclick="switchDemoRole('SalesExecutive')">Sales Rep</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <!-- Search and Filtering Bar -->
+      <div class="crm-card mb-4">
+        <div class="crm-card-body p-3">
+          <div class="row g-2 align-items-center justify-content-between">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" id="oppSearch" class="form-control border-start-0" placeholder="Search opportunity name, customer, notes...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select id="oppStageFilter" class="form-select">
+                <option value="All">All Stages</option>
+                <option value="Qualification">Qualification</option>
+                <option value="Proposal">Proposal</option>
+                <option value="Negotiation">Negotiation</option>
+                <option value="Won">Won</option>
+                <option value="Lost">Lost</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select id="oppStatusFilter" class="form-select">
+                <option value="All">All Statuses</option>
+                <option value="Open">Open</option>
+                <option value="Won">Won</option>
+                <option value="Lost">Lost</option>
+              </select>
+            </div>
+            <div class="col-md-3 text-md-end">
+              <button class="btn btn-crm-primary" onclick="openOppModal()">
+                <i class="bi bi-plus-circle-fill me-1"></i> New Opportunity
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Opportunities Table -->
+      <div class="crm-card">
+        <div class="crm-card-header">
+          <h5 class="mb-0">Pipeline Opportunities <span class="badge bg-primary-subtle text-primary ms-2" id="oppCountBadge">0</span></h5>
+          <a href="/reports/export?type=opportunities" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-download me-1"></i> Export CSV
+          </a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-crm mb-0">
+            <thead>
+              <tr>
+                <th>Opportunity Name</th>
+                <th>Associated Customer</th>
+                <th>Amount ($)</th>
+                <th>Probability</th>
+                <th>Weighted Value</th>
+                <th>Stage</th>
+                <th>Expected Close</th>
+                <th>Status</th>
+                <th>Assigned Rep</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="oppsTableBody">
+              <tr><td colspan="10" class="text-center p-4"><span class="spinner-border spinner-border-sm text-primary"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Opportunity Create / Edit Modal -->
+  <div class="modal fade" id="oppModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="oppModalTitle">Create Sales Opportunity</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div id="oppModalAlert" class="alert alert-danger d-none py-2 px-3 small"></div>
+          <form id="oppForm" novalidate>
+            <input type="hidden" id="oppId">
+            <div class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label">Opportunity Name *</label>
+                <input type="text" id="oppName" name="OpportunityName" class="form-control" placeholder="e.g. Cloud Migration Phase 2" required data-label="Opportunity Name">
+              </div>
+              <div class="col-md-5">
+                <label class="form-label">Customer Master Account *</label>
+                <select id="oppCustomerId" name="CustomerId" class="form-select" required data-label="Customer"></select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Deal Amount ($) * (&gt; 0)</label>
+                <input type="number" id="oppAmount" name="Amount" class="form-control" min="1" step="500" placeholder="e.g. 75000" required data-label="Opportunity Amount" oninput="updateWeightedCalc()">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Probability (0 - 100%) *</label>
+                <input type="number" id="oppProbability" name="Probability" class="form-control" min="0" max="100" placeholder="e.g. 60" value="50" required data-label="Probability" oninput="updateWeightedCalc()">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Weighted Pipeline ($)</label>
+                <input type="text" id="oppWeighted" class="form-control bg-light fw-bold text-primary" readonly value="$0">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Pipeline Stage *</label>
+                <select id="oppStage" name="Stage" class="form-select" onchange="handleStageChange(this.value)">
+                  <option value="Qualification">Qualification</option>
+                  <option value="Proposal">Proposal</option>
+                  <option value="Negotiation">Negotiation</option>
+                  <option value="Won">Won</option>
+                  <option value="Lost">Lost</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Expected Close Date * (Future)</label>
+                <input type="date" id="oppCloseDate" name="ExpectedCloseDate" class="form-control" required data-label="Expected Close Date">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Assigned Sales Executive</label>
+                <select id="oppAssignedTo" name="AssignedTo" class="form-select"></select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Notes & Commercial Conditions</label>
+                <textarea id="oppNotes" name="Notes" class="form-control" rows="2" placeholder="Procurement timeline, RFP status, competition..."></textarea>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-crm-primary">Save Opportunity</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let oppsData = [];
+    let customersList = [];
+    let usersList = [];
+    let oppModalInstance = null;
+
+    async function loadOpportunities() {
+      const search = document.getElementById('oppSearch').value;
+      const stage = document.getElementById('oppStageFilter').value;
+      const status = document.getElementById('oppStatusFilter').value;
+
+      try {
+        const res = await apiFetch(`/opportunities-data?search=${encodeURIComponent(search)}&stage=${stage}&status=${status}`);
+        oppsData = res.opportunities;
+        document.getElementById('oppCountBadge').textContent = res.total;
+        renderOppsTable();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function loadDropdowns() {
+      try {
+        const [custRes, userRes] = await Promise.all([
+          apiFetch('/customers-data'),
+          fetch('/users-data')
+        ]);
+        customersList = custRes.customers;
+        const custSelect = document.getElementById('oppCustomerId');
+        custSelect.innerHTML = '<option value="">Select Customer...</option>' +
+          customersList.map(c => `<option value="${c.CustomerId}">${c.CustomerName} (${c.CustomerCode})</option>`).join('');
+
+        if (userRes.ok) {
+          const uData = await userRes.json();
+          usersList = uData.users;
+          const userSelect = document.getElementById('oppAssignedTo');
+          userSelect.innerHTML = usersList.map(u => `<option value="${u.UserId}">${u.Name} (${u.Role})</option>`).join('');
+        }
+      } catch (e) {}
+    }
+
+    function updateWeightedCalc() {
+      const amt = parseFloat(document.getElementById('oppAmount').value) || 0;
+      const prob = parseFloat(document.getElementById('oppProbability').value) || 0;
+      const weighted = Math.round(amt * (prob / 100));
+      document.getElementById('oppWeighted').value = '$' + weighted.toLocaleString();
+    }
+
+    function handleStageChange(stage) {
+      if (stage === 'Won') {
+        document.getElementById('oppProbability').value = 100;
+      } else if (stage === 'Lost') {
+        document.getElementById('oppProbability').value = 0;
+      }
+      updateWeightedCalc();
+    }
+
+    function renderOppsTable() {
+      const tbody = document.getElementById('oppsTableBody');
+      if (oppsData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center p-4 text-muted">No opportunities found matching search criteria.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = oppsData.map(o => `
+        <tr>
+          <td><strong class="text-dark">${o.OpportunityName}</strong></td>
+          <td>
+            <span class="text-primary fw-semibold">${o.CustomerName}</span>
+            <div class="small text-muted font-monospace">${o.CustomerCode}</div>
+          </td>
+          <td class="fw-bold text-dark">$${Number(o.Amount).toLocaleString()}</td>
+          <td><span class="badge bg-light text-dark border">${o.Probability}%</span></td>
+          <td class="fw-semibold text-success">$${Number(o.WeightedAmount).toLocaleString()}</td>
+          <td>
+            <span class="badge-status badge-${o.Stage.toLowerCase()}">
+              <i class="bi bi-circle-fill" style="font-size: 0.45rem;"></i> ${o.Stage}
+            </span>
+          </td>
+          <td><i class="bi bi-calendar3 text-muted me-1"></i>${o.ExpectedCloseDate}</td>
+          <td><span class="badge bg-light text-secondary border">${o.Status}</span></td>
+          <td><span class="small fw-semibold text-secondary">${o.AssignedUserName || 'Unassigned'}</span></td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editOpp(${o.OpportunityId})" title="Edit">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteOpp(${o.OpportunityId}, '${o.OpportunityName}')" title="Delete">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openOppModal(opp = null) {
+      document.getElementById('oppModalAlert').classList.add('d-none');
+      document.getElementById('oppForm').reset();
+      document.getElementById('oppId').value = '';
+
+      if (opp) {
+        document.getElementById('oppModalTitle').textContent = 'Edit Opportunity: ' + opp.OpportunityName;
+        document.getElementById('oppId').value = opp.OpportunityId;
+        document.getElementById('oppName').value = opp.OpportunityName;
+        document.getElementById('oppCustomerId').value = opp.CustomerId;
+        document.getElementById('oppAmount').value = opp.Amount;
+        document.getElementById('oppProbability').value = opp.Probability;
+        document.getElementById('oppStage').value = opp.Stage;
+        document.getElementById('oppCloseDate').value = opp.ExpectedCloseDate;
+        if (opp.AssignedTo) document.getElementById('oppAssignedTo').value = opp.AssignedTo;
+        document.getElementById('oppNotes').value = opp.Notes || '';
+      } else {
+        document.getElementById('oppModalTitle').textContent = 'Create Sales Opportunity';
+        // default close date 30 days ahead
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        document.getElementById('oppCloseDate').value = d.toISOString().split('T')[0];
+        if (currentUser) document.getElementById('oppAssignedTo').value = currentUser.UserId;
+      }
+
+      updateWeightedCalc();
+      if (!oppModalInstance) {
+        oppModalInstance = new bootstrap.Modal(document.getElementById('oppModal'));
+      }
+      oppModalInstance.show();
+    }
+
+    function editOpp(id) {
+      const opp = oppsData.find(o => o.OpportunityId === id);
+      if (opp) openOppModal(opp);
+    }
+
+    document.getElementById('oppForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      if (!validateForm(form)) return;
+
+      const id = document.getElementById('oppId').value;
+      const isEdit = !!id;
+      const url = isEdit ? `/opportunities-data/${id}` : '/opportunities-data';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const payload = {
+        OpportunityName: document.getElementById('oppName').value.trim(),
+        CustomerId: document.getElementById('oppCustomerId').value,
+        Amount: document.getElementById('oppAmount').value,
+        Probability: document.getElementById('oppProbability').value,
+        Stage: document.getElementById('oppStage').value,
+        ExpectedCloseDate: document.getElementById('oppCloseDate').value,
+        AssignedTo: document.getElementById('oppAssignedTo').value,
+        Notes: document.getElementById('oppNotes').value.trim()
+      };
+
+      const alertBox = document.getElementById('oppModalAlert');
+      alertBox.classList.add('d-none');
+
+      try {
+        const res = await apiFetch(url, { method, body: JSON.stringify(payload) });
+        showToast(res.message, 'success');
+        oppModalInstance.hide();
+        loadOpportunities();
+      } catch (err) {
+        alertBox.textContent = err.message;
+        alertBox.classList.remove('d-none');
+      }
+    });
+
+    async function deleteOpp(id, name) {
+      if (!confirm(`Are you sure you want to delete opportunity '${name}'?`)) return;
+      try {
+        const res = await apiFetch(`/opportunities-data/${id}`, { method: 'DELETE' });
+        showToast(res.message, 'success');
+        loadOpportunities();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    document.getElementById('oppSearch').addEventListener('input', () => loadOpportunities());
+    document.getElementById('oppStageFilter').addEventListener('change', () => loadOpportunities());
+    document.getElementById('oppStatusFilter').addEventListener('change', () => loadOpportunities());
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadOpportunities();
+      loadDropdowns();
+    });
+  </script>
+</body>
+</html>

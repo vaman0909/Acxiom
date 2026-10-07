@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcxiomCRM - Follow-Up Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- App Sidebar -->
+  <aside class="app-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">A</div>
+      <div class="brand-text">
+        <h5>AcxiomCRM</h5>
+        <span>Sales Enterprise</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-title">Core CRM</div>
+      <a href="/dashboard" class="nav-link-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+      <a href="/customers" class="nav-link-item"><i class="bi bi-buildings-fill"></i><span>Customers</span></a>
+      <a href="/leads" class="nav-link-item"><i class="bi bi-funnel-fill"></i><span>Leads</span></a>
+      <a href="/opportunities" class="nav-link-item"><i class="bi bi-cash-stack"></i><span>Opportunities</span></a>
+      <a href="/followups" class="nav-link-item active"><i class="bi bi-calendar-check-fill"></i><span>Follow-Ups</span></a>
+      <a href="/activities" class="nav-link-item"><i class="bi bi-activity"></i><span>Activities</span></a>
+
+      <div class="nav-section-title">Analytics & Intelligence</div>
+      <a href="/reports" class="nav-link-item"><i class="bi bi-bar-chart-line-fill"></i><span>Reports</span></a>
+      <a href="/api-docs" class="nav-link-item"><i class="bi bi-code-slash"></i><span>REST API Explorer</span></a>
+
+      <div class="nav-section-title admin-only-nav">Administration</div>
+      <a href="/users" class="nav-link-item admin-only-nav"><i class="bi bi-people-fill"></i><span>User Management</span></a>
+      <a href="/audit" class="nav-link-item manager-admin-nav"><i class="bi bi-shield-shaded"></i><span>Audit Logs</span></a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-badge mb-2">
+        <div class="user-avatar">US</div>
+        <div class="user-info text-truncate">
+          <div class="fw-bold text-white small current-user-name text-truncate">Loading...</div>
+          <div class="text-muted small current-user-email text-truncate" style="font-size: 0.72rem;">user@acxiom.com</div>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 mt-2" onclick="handleLogout()">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+    <header class="app-topbar">
+      <div class="d-flex align-items-center gap-3">
+        <h5 class="fw-bold mb-0">Follow-Up Scheduling & Reminders</h5>
+        <span class="badge current-user-role badge-role-admin">Role</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="demo-role-switcher">
+          <span class="small text-muted me-1 fw-bold" style="font-size: 0.7rem;">ROLE SCOPE:</span>
+          <button class="demo-role-btn" data-role="Admin" onclick="switchDemoRole('Admin')">Admin</button>
+          <button class="demo-role-btn" data-role="Manager" onclick="switchDemoRole('Manager')">Manager</button>
+          <button class="demo-role-btn" data-role="SalesExecutive" onclick="switchDemoRole('SalesExecutive')">Sales Rep</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <!-- Search and Filter Bar -->
+      <div class="crm-card mb-4">
+        <div class="crm-card-body p-3">
+          <div class="row g-2 align-items-center justify-content-between">
+            <div class="col-md-3">
+              <select id="followupStatusFilter" class="form-select">
+                <option value="All">All Statuses</option>
+                <option value="Planned" selected>Planned / Upcoming</option>
+                <option value="Completed">Completed</option>
+                <option value="Missed">Missed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select id="followupTypeFilter" class="form-select">
+                <option value="All">All Activity Types</option>
+                <option value="Call">Call</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Email">Email</option>
+                <option value="Task">Task</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <input type="date" id="followupDateFilter" class="form-control" title="Filter by specific date">
+            </div>
+            <div class="col-md-3 text-md-end">
+              <button class="btn btn-crm-primary" onclick="openFollowupModal()">
+                <i class="bi bi-calendar-plus me-1"></i> Schedule Follow-Up
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Follow-Up Table -->
+      <div class="crm-card">
+        <div class="crm-card-header">
+          <h5 class="mb-0">Follow-Up Radar <span class="badge bg-primary-subtle text-primary ms-2" id="followupCountBadge">0</span></h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-crm mb-0">
+            <thead>
+              <tr>
+                <th>Scheduled Date</th>
+                <th>Type</th>
+                <th>Subject & Notes</th>
+                <th>Linked Entity</th>
+                <th>Status</th>
+                <th>Assigned Rep</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="followupsTableBody">
+              <tr><td colspan="7" class="text-center p-4"><span class="spinner-border spinner-border-sm text-primary"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Follow-Up Create Modal -->
+  <div class="modal fade" id="followupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="followupModalTitle">Schedule New Follow-Up</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div id="followupModalAlert" class="alert alert-danger d-none py-2 px-3 small"></div>
+          <form id="followupForm" novalidate>
+            <input type="hidden" id="followupId">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Subject / Purpose *</label>
+                <input type="text" id="fSubject" name="Subject" class="form-control" placeholder="e.g. Discuss RFP pricing proposal with CTO" required data-label="Subject">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Activity Type *</label>
+                <select id="fType" name="FollowUpType" class="form-select">
+                  <option value="Call">Phone Call</option>
+                  <option value="Meeting">Client Meeting</option>
+                  <option value="Email">Email Follow-Up</option>
+                  <option value="Task">Action Item / Task</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Follow-Up Date * (Cannot be earlier than today)</label>
+                <input type="date" id="fDate" name="FollowUpDate" class="form-control" required data-label="Follow-Up Date">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Assigned Executive</label>
+                <select id="fAssignedTo" name="AssignedTo" class="form-select"></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Linked Customer (Optional)</label>
+                <select id="fCustomerId" name="CustomerId" class="form-select"></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Linked Lead (Optional)</label>
+                <select id="fLeadId" name="LeadId" class="form-select"></select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Remarks & Agenda</label>
+                <textarea id="fRemarks" name="Remarks" class="form-control" rows="2" placeholder="Specific questions, meeting dial-in or agenda points..."></textarea>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-crm-primary">Save Follow-Up Schedule</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    let followupsData = [];
+    let followupModalInstance = null;
+
+    async function loadFollowups() {
+      const status = document.getElementById('followupStatusFilter').value;
+      const type = document.getElementById('followupTypeFilter').value;
+      const date = document.getElementById('followupDateFilter').value;
+
+      try {
+        const res = await apiFetch(`/followups-data?status=${status}&type=${type}&date=${date}`);
+        followupsData = res.followups;
+        document.getElementById('followupCountBadge').textContent = res.total;
+        renderFollowupsTable();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function loadFollowupDropdowns() {
+      try {
+        const [custRes, leadRes, userRes] = await Promise.all([
+          apiFetch('/customers-data'),
+          apiFetch('/leads-data'),
+          fetch('/users-data')
+        ]);
+
+        document.getElementById('fCustomerId').innerHTML = '<option value="">None / Not Customer</option>' +
+          custRes.customers.map(c => `<option value="${c.CustomerId}">${c.CustomerName} (${c.CustomerCode})</option>`).join('');
+
+        document.getElementById('fLeadId').innerHTML = '<option value="">None / Not Lead</option>' +
+          leadRes.leads.map(l => `<option value="${l.LeadId}">${l.LeadName} (${l.LeadCode})</option>`).join('');
+
+        if (userRes.ok) {
+          const u = await userRes.json();
+          document.getElementById('fAssignedTo').innerHTML = u.users.map(user => `<option value="${user.UserId}">${user.Name} (${user.Role})</option>`).join('');
+        }
+      } catch (e) {}
+    }
+
+    function renderFollowupsTable() {
+      const tbody = document.getElementById('followupsTableBody');
+      if (followupsData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4 text-muted">No follow-ups found for the selected criteria.</td></tr>';
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+
+      tbody.innerHTML = followupsData.map(f => {
+        const isOverdue = f.Status === 'Planned' && f.FollowUpDate < today;
+        return `
+          <tr>
+            <td>
+              <div class="fw-bold ${isOverdue ? 'text-danger' : 'text-dark'}">
+                <i class="bi bi-calendar3 me-1"></i>${f.FollowUpDate}
+                ${isOverdue ? '<span class="badge bg-danger ms-1">Overdue</span>' : ''}
+              </div>
+            </td>
+            <td>
+              <span class="badge bg-light text-primary border">
+                <i class="bi bi-${f.FollowUpType === 'Call' ? 'telephone' : (f.FollowUpType === 'Meeting' ? 'people' : 'envelope')} me-1"></i>
+                ${f.FollowUpType}
+              </span>
+            </td>
+            <td>
+              <div class="fw-bold text-dark">${f.Subject}</div>
+              <small class="text-muted">${f.Remarks || 'No remarks recorded.'}</small>
+            </td>
+            <td>
+              ${f.CustomerName ? `<div class="small fw-semibold text-primary"><i class="bi bi-buildings me-1"></i>${f.CustomerName}</div>` : ''}
+              ${f.LeadName ? `<div class="small fw-semibold text-info"><i class="bi bi-funnel me-1"></i>${f.LeadName}</div>` : ''}
+              ${!f.CustomerName && !f.LeadName ? '<span class="text-muted small">General</span>' : ''}
+            </td>
+            <td>
+              <span class="badge-status badge-${f.Status.toLowerCase()}">
+                <i class="bi bi-circle-fill" style="font-size: 0.45rem;"></i> ${f.Status}
+              </span>
+            </td>
+            <td><span class="small fw-semibold text-secondary">${f.AssignedUserName || 'Unassigned'}</span></td>
+            <td class="text-end">
+              ${f.Status === 'Planned' ? `
+                <button class="btn btn-sm btn-success me-1" onclick="markDone(${f.FollowUpId})" title="Mark Completed">
+                  <i class="bi bi-check2"></i> Complete
+                </button>
+              ` : ''}
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteFollowup(${f.FollowUpId})" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openFollowupModal() {
+      document.getElementById('followupModalAlert').classList.add('d-none');
+      document.getElementById('followupForm').reset();
+      document.getElementById('followupId').value = '';
+
+      // Default date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('fDate').value = today;
+
+      if (currentUser) {
+        document.getElementById('fAssignedTo').value = currentUser.UserId;
+      }
+
+      if (!followupModalInstance) {
+        followupModalInstance = new bootstrap.Modal(document.getElementById('followupModal'));
+      }
+      followupModalInstance.show();
+    }
+
+    async function markDone(id) {
+      const note = prompt('Optional completion remarks / outcome:');
+      if (note === null) return;
+
+      try {
+        await apiFetch(`/followups-data/${id}/complete`, {
+          method: 'PUT',
+          body: JSON.stringify({ remarks: note })
+        });
+        showToast('Follow-up marked as Completed!', 'success');
+        loadFollowups();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function deleteFollowup(id) {
+      if (!confirm('Are you sure you want to remove this follow-up?')) return;
+      try {
+        await apiFetch(`/followups-data/${id}`, { method: 'DELETE' });
+        showToast('Follow-up deleted.', 'success');
+        loadFollowups();
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    document.getElementById('followupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      if (!validateForm(form)) return;
+
+      const payload = {
+        Subject: document.getElementById('fSubject').value.trim(),
+        FollowUpType: document.getElementById('fType').value,
+        FollowUpDate: document.getElementById('fDate').value,
+        CustomerId: document.getElementById('fCustomerId').value || null,
+        LeadId: document.getElementById('fLeadId').value || null,
+        AssignedTo: document.getElementById('fAssignedTo').value,
+        Remarks: document.getElementById('fRemarks').value.trim(),
+        Status: 'Planned'
+      };
+
+      const alertBox = document.getElementById('followupModalAlert');
+      alertBox.classList.add('d-none');
+
+      try {
+        const res = await apiFetch('/followups-data', { method: 'POST', body: JSON.stringify(payload) });
+        showToast(res.message, 'success');
+        followupModalInstance.hide();
+        loadFollowups();
+      } catch (err) {
+        alertBox.textContent = err.message;
+        alertBox.classList.remove('d-none');
+      }
+    });
+
+    document.getElementById('followupStatusFilter').addEventListener('change', () => loadFollowups());
+    document.getElementById('followupTypeFilter').addEventListener('change', () => loadFollowups());
+    document.getElementById('followupDateFilter').addEventListener('change', () => loadFollowups());
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFollowups();
+      loadFollowupDropdowns();
+    });
+  </script>
+</body>
+</html>

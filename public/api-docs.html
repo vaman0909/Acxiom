@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AcxiomCRM - REST API Explorer & Documentation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- App Sidebar -->
+  <aside class="app-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">A</div>
+      <div class="brand-text">
+        <h5>AcxiomCRM</h5>
+        <span>Sales Enterprise</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-title">Core CRM</div>
+      <a href="/dashboard" class="nav-link-item"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a>
+      <a href="/customers" class="nav-link-item"><i class="bi bi-buildings-fill"></i><span>Customers</span></a>
+      <a href="/leads" class="nav-link-item"><i class="bi bi-funnel-fill"></i><span>Leads</span></a>
+      <a href="/opportunities" class="nav-link-item"><i class="bi bi-cash-stack"></i><span>Opportunities</span></a>
+      <a href="/followups" class="nav-link-item"><i class="bi bi-calendar-check-fill"></i><span>Follow-Ups</span></a>
+      <a href="/activities" class="nav-link-item"><i class="bi bi-activity"></i><span>Activities</span></a>
+
+      <div class="nav-section-title">Analytics & Intelligence</div>
+      <a href="/reports" class="nav-link-item"><i class="bi bi-bar-chart-line-fill"></i><span>Reports</span></a>
+      <a href="/api-docs" class="nav-link-item active"><i class="bi bi-code-slash"></i><span>REST API Explorer</span></a>
+
+      <div class="nav-section-title admin-only-nav">Administration</div>
+      <a href="/users" class="nav-link-item admin-only-nav"><i class="bi bi-people-fill"></i><span>User Management</span></a>
+      <a href="/audit" class="nav-link-item manager-admin-nav"><i class="bi bi-shield-shaded"></i><span>Audit Logs</span></a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-badge mb-2">
+        <div class="user-avatar">US</div>
+        <div class="user-info text-truncate">
+          <div class="fw-bold text-white small current-user-name text-truncate">Loading...</div>
+          <div class="text-muted small current-user-email text-truncate" style="font-size: 0.72rem;">user@acxiom.com</div>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 mt-2" onclick="handleLogout()">
+        <i class="bi bi-box-arrow-right"></i> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Layout -->
+  <main class="app-main">
+    <header class="app-topbar">
+      <div class="d-flex align-items-center gap-3">
+        <h5 class="fw-bold mb-0">REST API Specification & Interactive Explorer</h5>
+        <span class="badge bg-primary">v1.0 REST</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="demo-role-switcher">
+          <span class="small text-muted me-1 fw-bold" style="font-size: 0.7rem;">ROLE SCOPE:</span>
+          <button class="demo-role-btn" data-role="Admin" onclick="switchDemoRole('Admin')">Admin</button>
+          <button class="demo-role-btn" data-role="Manager" onclick="switchDemoRole('Manager')">Manager</button>
+          <button class="demo-role-btn" data-role="SalesExecutive" onclick="switchDemoRole('SalesExecutive')">Sales Rep</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="alert alert-info d-flex align-items-center gap-3 mb-4">
+        <i class="bi bi-info-circle-fill fs-4"></i>
+        <div>
+          <strong>Specification Compliance (Section 10 & 17.14):</strong>
+          Endpoints use Clean DTOs, proper HTTP status codes (200, 201, 400, 401, 403, 404), input validation, session cookie or Bearer JWT token authentication, and role authorization.
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Interactive Tester Form -->
+        <div class="col-lg-6">
+          <div class="crm-card">
+            <div class="crm-card-header">
+              <h5>Live API Request Runner</h5>
+              <span class="badge bg-dark font-monospace">HTTP Console</span>
+            </div>
+            <div class="crm-card-body">
+              <div class="mb-3">
+                <label class="form-label">Pre-configured Endpoints</label>
+                <select id="endpointPreset" class="form-select font-monospace small" onchange="applyPreset(this.value)">
+                  <option value="get_customers">GET /api/customers - List all authorized customers</option>
+                  <option value="get_customer_id">GET /api/customers/1 - Fetch single customer DTO</option>
+                  <option value="create_customer">POST /api/customers - Create new customer</option>
+                  <option value="get_leads">GET /api/leads - List all prospective leads</option>
+                  <option value="create_lead">POST /api/leads - Create new lead</option>
+                  <option value="get_opps">GET /api/opportunities - List opportunities</option>
+                  <option value="create_opp">POST /api/opportunities - Create sales opportunity</option>
+                  <option value="get_followups">GET /api/followups - List upcoming follow-ups</option>
+                  <option value="get_pipeline_report">GET /api/reports/pipeline - Stage-wise pipeline stats</option>
+                </select>
+              </div>
+
+              <div class="row g-2 mb-3">
+                <div class="col-3">
+                  <select id="apiMethod" class="form-select font-monospace fw-bold">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                  </select>
+                </div>
+                <div class="col-9">
+                  <input type="text" id="apiEndpoint" class="form-control font-monospace" value="/api/customers">
+                </div>
+              </div>
+
+              <div class="mb-3" id="payloadContainer">
+                <label class="form-label">JSON Request Body</label>
+                <textarea id="apiPayload" class="form-control font-monospace small" rows="7" placeholder="{}"></textarea>
+              </div>
+
+              <button class="btn btn-crm-primary w-100 fw-bold" onclick="executeApiTest()">
+                <i class="bi bi-send-fill me-1"></i> Send Request
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Response Output -->
+        <div class="col-lg-6">
+          <div class="crm-card">
+            <div class="crm-card-header">
+              <h5>API Response Console</h5>
+              <span id="responseStatusBadge" class="badge bg-secondary font-monospace">Ready</span>
+            </div>
+            <div class="crm-card-body p-0">
+              <pre class="json-viewer m-0" id="apiResponseViewer" style="min-height: 380px; border-radius: 0 0 16px 16px;">// Click 'Send Request' to execute API call...</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    const presets = {
+      get_customers: {
+        method: 'GET',
+        endpoint: '/api/customers',
+        body: ''
+      },
+      get_customer_id: {
+        method: 'GET',
+        endpoint: '/api/customers/1',
+        body: ''
+      },
+      create_customer: {
+        method: 'POST',
+        endpoint: '/api/customers',
+        body: JSON.stringify({
+          CustomerName: "Sterling Global Logistics",
+          Email: `sterling_${Date.now()}@logistics.com`,
+          Phone: "+91 9898765432",
+          CompanyName: "Sterling Global Inc",
+          City: "Bangalore",
+          State: "Karnataka",
+          Status: "Active"
+        }, null, 2)
+      },
+      get_leads: {
+        method: 'GET',
+        endpoint: '/api/leads',
+        body: ''
+      },
+      create_lead: {
+        method: 'POST',
+        endpoint: '/api/leads',
+        body: JSON.stringify({
+          LeadName: "Kavita Rao",
+          Email: `kavita_${Date.now()}@fintech.io`,
+          Phone: "+91 9888877777",
+          CompanyName: "PayNext Solutions",
+          Source: "Website",
+          Status: "Qualified",
+          ExpectedValue: 65000,
+          Priority: "High"
+        }, null, 2)
+      },
+      get_opps: {
+        method: 'GET',
+        endpoint: '/api/opportunities',
+        body: ''
+      },
+      create_opp: {
+        method: 'POST',
+        endpoint: '/api/opportunities',
+        body: JSON.stringify({
+          OpportunityName: "PayNext Cloud Security Expansion",
+          CustomerId: 1,
+          Amount: 95000,
+          Stage: "Proposal",
+          Probability: 60,
+          ExpectedCloseDate: "2026-11-30"
+        }, null, 2)
+      },
+      get_followups: {
+        method: 'GET',
+        endpoint: '/api/followups',
+        body: ''
+      },
+      get_pipeline_report: {
+        method: 'GET',
+        endpoint: '/api/reports/pipeline',
+        body: ''
+      }
+    };
+
+    function applyPreset(key) {
+      const p = presets[key];
+      if (!p) return;
+      document.getElementById('apiMethod').value = p.method;
+      document.getElementById('apiEndpoint').value = p.endpoint;
+      document.getElementById('apiPayload').value = p.body;
+      document.getElementById('payloadContainer').style.display = p.method === 'GET' ? 'none' : 'block';
+    }
+
+    async function executeApiTest() {
+      const method = document.getElementById('apiMethod').value;
+      const endpoint = document.getElementById('apiEndpoint').value;
+      const payloadStr = document.getElementById('apiPayload').value;
+      const statusBadge = document.getElementById('responseStatusBadge');
+      const viewer = document.getElementById('apiResponseViewer');
+
+      statusBadge.className = 'badge bg-warning text-dark font-monospace';
+      statusBadge.textContent = 'Sending...';
+
+      const options = {
+        method,
+        headers: {
+          'Accept': 'application/json'
+        }
+      };
+
+      if (csrfToken) {
+        options.headers['x-csrf-token'] = csrfToken;
+      }
+
+      if (method !== 'GET' && method !== 'HEAD') {
+        options.headers['Content-Type'] = 'application/json';
+        if (payloadStr.trim()) {
+          options.body = payloadStr;
+        }
+      }
+
+      try {
+        const startTime = performance.now();
+        const res = await fetch(endpoint, options);
+        const duration = Math.round(performance.now() - startTime);
+
+        let data;
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          data = text;
+        }
+
+        const isSuccess = res.status >= 200 && res.status < 300;
+        statusBadge.className = `badge ${isSuccess ? 'bg-success' : 'bg-danger'} font-monospace`;
+        statusBadge.textContent = `HTTP ${res.status} ${res.statusText} (${duration}ms)`;
+
+        viewer.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+      } catch (err) {
+        statusBadge.className = 'badge bg-danger font-monospace';
+        statusBadge.textContent = 'Error';
+        viewer.textContent = JSON.stringify({ error: err.message }, null, 2);
+      }
+    }
+
+    document.getElementById('apiMethod').addEventListener('change', (e) => {
+      document.getElementById('payloadContainer').style.display = e.target.value === 'GET' ? 'none' : 'block';
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyPreset('get_customers');
+    });
+  </script>
+</body>
+</html>
